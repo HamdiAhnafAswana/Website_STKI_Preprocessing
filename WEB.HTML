@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Pre-processing Teks - Portal Pemerintah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        .nav-btn { white-space: nowrap; transition: all 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Bar -->
+    <div class="bg-red-700 text-white text-xs py-1 px-6 flex justify-between items-center shadow-sm z-30 relative">
+        <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+            <span>Portal Resmi Sistem Temu-Kembali Informasi (STKI)</span>
+        </div>
+        <div>UNIVERSITAS NEGERI SURABAYA</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-slate-900 shadow-md z-20 flex-shrink-0 border-b-4 border-yellow-500">
+        <div class="px-6 py-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center border-2 border-white shadow-inner flex-shrink-0">
+                <span class="text-slate-900 font-serif font-bold text-xl">RI</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-serif font-bold text-white tracking-wide uppercase">Sistem Analisis & Pemrosesan Teks</h1>
+                <p class="text-sm text-slate-300 mt-1">Tugas 1 STKI - Pre-processing Text Mining</p>
+            </div>
+        </div>
+        
+        <!-- Navigasi -->
+        <nav class="flex overflow-x-auto px-4 pt-2 gap-1 snap-x bg-slate-800" id="top-nav">
+            <button onclick="switchTab('dokumen')" id="nav-dokumen" class="nav-btn active flex items-center gap-2 px-5 py-3 bg-white text-slate-900 border-t-4 border-yellow-500 font-bold snap-start shadow-sm">
+                <span class="badge w-6 h-6 rounded bg-slate-900 text-white flex items-center justify-center text-xs shrink-0">1</span> Input Dokumen
+            </button>
+            <button onclick="switchTab('casefolding')" id="nav-casefolding" class="nav-btn inactive flex items-center gap-2 px-5 py-3 bg-slate-700 text-slate-300 border-t-4 border-transparent hover:bg-slate-600 font-medium snap-start">
+                <span class="badge w-6 h-6 rounded bg-slate-600 text-slate-300 flex items-center justify-center text-xs shrink-0">2</span> Case Folding
+            </button>
+            <button onclick="switchTab('cleaning')" id="nav-cleaning" class="nav-btn inactive flex items-center gap-2 px-5 py-3 bg-slate-700 text-slate-300 border-t-4 border-transparent hover:bg-slate-600 font-medium snap-start">
+                <span class="badge w-6 h-6 rounded bg-slate-600 text-slate-300 flex items-center justify-center text-xs shrink-0">3</span> Cleaning
+            </button>
+            <button onclick="switchTab('tokenization')" id="nav-tokenization" class="nav-btn inactive flex items-center gap-2 px-5 py-3 bg-slate-700 text-slate-300 border-t-4 border-transparent hover:bg-slate-600 font-medium snap-start">
+                <span class="badge w-6 h-6 rounded bg-slate-600 text-slate-300 flex items-center justify-center text-xs shrink-0">4</span> Tokenization
+            </button>
+            <button onclick="switchTab('stopword')" id="nav-stopword" class="nav-btn inactive flex items-center gap-2 px-5 py-3 bg-slate-700 text-slate-300 border-t-4 border-transparent hover:bg-slate-600 font-medium snap-start">
+                <span class="badge w-6 h-6 rounded bg-slate-600 text-slate-300 flex items-center justify-center text-xs shrink-0">5</span> Stopword
+            </button>
+            <button onclick="switchTab('stemming')" id="nav-stemming" class="nav-btn inactive flex items-center gap-2 px-5 py-3 bg-slate-700 text-slate-300 border-t-4 border-transparent hover:bg-slate-600 font-medium snap-start">
+                <span class="badge w-6 h-6 rounded bg-slate-600 text-slate-300 flex items-center justify-center text-xs shrink-0">6</span> Stemming
+            </button>
+            <button onclick="switchTab('log')" id="nav-log" class="nav-btn inactive flex items-center gap-2 px-5 py-3 bg-slate-700 text-slate-300 border-t-4 border-transparent hover:bg-slate-600 font-medium snap-start">
+                <span class="badge w-6 h-6 rounded bg-slate-600 text-slate-300 flex items-center justify-center text-xs shrink-0">7</span> Processing Log
+            </button>
+        </nav>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+        <div class="max-w-6xl mx-auto bg-white border border-slate-300 shadow-sm min-h-full pb-10">
+            
+            <!-- SECTION 1: Dokumen -->
+            <section id="sec-dokumen" class="p-6 md:p-10 block">
+                <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-200 pb-3">
+                    <div class="w-8 h-8 bg-blue-900 text-white flex items-center justify-center font-bold font-serif">I</div>
+                    <h2 class="text-2xl font-serif font-bold text-slate-800 uppercase">Formulir Input Dokumen</h2>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Pilih Sampel Data Teks (Sesuai Syarat No. 9):</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="loadSample(0)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-sm font-medium transition">Siaran Pers Resmi</button>
+                            <button onclick="loadSample(1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-sm font-medium transition">Aduan Masyarakat</button>
+                            <button onclick="loadSample(2)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-sm font-medium transition">Laporan Kinerja</button>
+                            <button onclick="loadSample(3)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-sm font-medium transition">Jurnal Kebijakan</button>
+                            <button onclick="loadSample(4)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-sm font-medium transition">Data Mentah Sosmed</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Teks Dokumen:</label>
+                        <textarea id="raw-input" class="w-full h-48 p-4 border border-slate-400 bg-white focus:ring-2 focus:ring-blue-900 focus:border-blue-900 resize-y font-serif text-slate-800" placeholder="Masukkan teks dokumen berbahasa Indonesia..."></textarea>
+                        <p id="error-msg" class="hidden mt-2 text-sm text-red-700 font-bold bg-red-50 p-2 border border-red-200">⚠️ PERHATIAN: Teks dokumen tidak boleh kosong.</p>
+                    </div>
+                    <div class="pt-6 border-t border-slate-200">
+                        <button onclick="runPipeline()" class="px-8 py-3 bg-red-700 hover:bg-red-800 text-white font-bold uppercase tracking-wider shadow-md transition-colors flex items-center gap-2">
+                            Mulai Pre-processing
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Case Folding -->
+            <section id="sec-casefolding" class="p-6 md:p-10 hidden">
+                <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-200 pb-3">
+                    <div class="w-8 h-8 bg-blue-900 text-white flex items-center justify-center font-bold font-serif">II</div>
+                    <h2 class="text-2xl font-serif font-bold text-slate-800 uppercase">Case Folding</h2>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-900 p-4 mb-6">
+                    <p class="text-sm text-blue-900"><strong>Fungsi:</strong> Tahap Case Folding berfungsi untuk mengubah seluruh huruf kapital dalam dokumen menjadi huruf kecil (lowercase) agar seragam.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-0 border border-slate-300">
+                    <div class="bg-slate-50 p-6 border-r border-slate-300">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">Teks Asli</h3>
+                        <div id="res-cf-before" class="text-slate-700 whitespace-pre-wrap font-serif text-justify"></div>
+                    </div>
+                    <div class="bg-white p-6">
+                        <h3 class="text-xs font-bold text-blue-900 uppercase tracking-wider mb-4 border-b border-blue-200 pb-2">Hasil Case Folding</h3>
+                        <div id="res-cf-after" class="text-slate-900 whitespace-pre-wrap font-serif text-justify"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: Cleaning -->
+            <section id="sec-cleaning" class="p-6 md:p-10 hidden">
+                <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-200 pb-3">
+                    <div class="w-8 h-8 bg-blue-900 text-white flex items-center justify-center font-bold font-serif">III</div>
+                    <h2 class="text-2xl font-serif font-bold text-slate-800 uppercase">Cleaning</h2>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-900 p-4 mb-6">
+                    <p class="text-sm text-blue-900"><strong>Fungsi:</strong> Tahap Cleaning bertujuan menghilangkan karakter *noise* yang tidak relevan seperti angka, tanda baca, dan simbol sehingga hanya menyisakan karakter alfabet.</p>
+                </div>
+                <div class="border border-slate-300 bg-white p-6 mb-6">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2 uppercase tracking-wide">Teks Hasil Cleaning:</h3>
+                    <div id="res-clean-after" class="text-slate-800 whitespace-pre-wrap font-serif text-lg leading-relaxed text-justify"></div>
+                </div>
+                <div class="bg-red-50 border border-red-200 p-5">
+                    <h3 class="text-sm font-bold text-red-800 mb-3 uppercase tracking-wide">Karakter Invalid yang Dihapus:</h3>
+                    <div id="res-clean-removed" class="flex flex-wrap gap-2 font-mono text-sm"></div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: Tokenization -->
+            <section id="sec-tokenization" class="p-6 md:p-10 hidden">
+                <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-200 pb-3">
+                    <div class="w-8 h-8 bg-blue-900 text-white flex items-center justify-center font-bold font-serif">IV</div>
+                    <h2 class="text-2xl font-serif font-bold text-slate-800 uppercase">Tokenization</h2>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-900 p-4 mb-6">
+                    <p class="text-sm text-blue-900"><strong>Fungsi:</strong> Tahap Tokenization memecah sekumpulan teks kalimat dari tahap sebelumnya menjadi potongan-potongan kata penyusunnya (token).</p>
+                </div>
+                <div class="border border-slate-300 bg-slate-50 p-6">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-3">
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Daftar Token</h3>
+                        <span class="bg-blue-900 text-white text-xs px-4 py-1.5 font-bold uppercase tracking-wider">Total: <span id="token-count">0</span> Kata</span>
+                    </div>
+                    <div id="res-tokens" class="flex flex-wrap gap-2"></div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: Stopword -->
+            <section id="sec-stopword" class="p-6 md:p-10 hidden">
+                <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-200 pb-3">
+                    <div class="w-8 h-8 bg-blue-900 text-white flex items-center justify-center font-bold font-serif">V</div>
+                    <h2 class="text-2xl font-serif font-bold text-slate-800 uppercase">Stopword Removal</h2>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-900 p-4 mb-6">
+                    <p class="text-sm text-blue-900"><strong>Fungsi:</strong> Tahap Stopword Removal menyaring dan menghapus kata-kata umum (seperti konjungsi/preposisi) yang sering muncul namun tidak memiliki signifikansi konteks. <br> <span class="text-red-600 mt-2 block">*Kata bercoret merah muda adalah stopword yang dihapus.</span></p>
+                </div>
+                <div class="border border-slate-300 bg-white p-6">
+                    <div id="res-stopword-viz" class="flex flex-wrap gap-2 leading-loose"></div>
+                </div>
+            </section>
+
+            <!-- SECTION 6: Stemming -->
+            <section id="sec-stemming" class="p-6 md:p-10 hidden">
+                <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-200 pb-3">
+                    <div class="w-8 h-8 bg-blue-900 text-white flex items-center justify-center font-bold font-serif">VI</div>
+                    <h2 class="text-2xl font-serif font-bold text-slate-800 uppercase">Stemming</h2>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-900 p-4 mb-6">
+                    <p class="text-sm text-blue-900"><strong>Fungsi:</strong> Tahap Stemming memotong imbuhan (awalan/akhiran) pada token yang tersisa untuk mengembalikan kata tersebut ke bentuk dasarnya (root word).</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="border border-slate-300">
+                        <h3 class="text-sm font-bold text-white bg-slate-800 p-3 uppercase tracking-wide text-center">Perubahan Kata (Log Reduksi)</h3>
+                        <div id="res-stem-changes" class="bg-slate-50 p-4 h-96 overflow-y-auto space-y-2 text-sm"></div>
+                    </div>
+                    <div class="border border-slate-300">
+                        <h3 class="text-sm font-bold text-white bg-blue-900 p-3 uppercase tracking-wide text-center">Hasil Akhir</h3>
+                        <div id="res-stem-final" class="flex flex-wrap gap-2 bg-white p-6 h-96 overflow-y-auto content-start"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 7: Processing Log -->
+            <section id="sec-log" class="p-6 md:p-10 hidden">
+                <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-200 pb-3">
+                    <div class="w-8 h-8 bg-blue-900 text-white flex items-center justify-center font-bold font-serif">VII</div>
+                    <h2 class="text-2xl font-serif font-bold text-slate-800 uppercase">Processing Log</h2>
+                </div>
+                <div class="border border-slate-300 shadow-sm overflow-hidden">
+                    <table class="min-w-full bg-white text-sm table-fixed">
+                        <thead class="bg-slate-800 text-white uppercase text-xs tracking-wider">
+                            <tr>
+                                <th class="py-4 px-4 text-left font-bold w-1/5 border-r border-slate-600">Proses Dilakukan</th>
+                                <th class="py-4 px-4 text-left font-bold w-2/5 border-r border-slate-600">Data Sebelum</th>
+                                <th class="py-4 px-4 text-left font-bold w-2/5">Hasil Setelah Proses</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-table-body" class="divide-y divide-slate-300"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        const datasets = [
+            "SIARAN PERS: Pemerintah RI melalui Kementerian Keuangan mengumumkan alokasi dana desa senilai 15 Triliun Rupiah pada kuartal pertama tahun 2024 untuk menekan angka kemiskinan ekstrem di daerah terpencil!!",
+            "LAPORAN WARGA: Yth. Bapak/Ibu, tolong perbaiki jalan berlubang di jalan Sudirman KM 5, tiap hujan selalu banjir dan rawan kecelakaan. Tolong segera ditindaklanjuti!!! @Pemkab",
+            "Berdasarkan evaluasi kinerja triwulan II, tingkat serapan anggaran di instansi A mencapai 85%, namun terdapat anomali pada pos belanja modal yang perlu diaudit lebih lanjut.",
+            "Penelitian kebijakan ini bertujuan untuk merumuskan regulasi terkait perlindungan data pribadi dalam transaksi digital pemerintah berdasarkan standar ISO/IEC 27001.",
+            "wah gila sih antrean di dukcapil hari ini panjang bgt dr jam 6 pagi blm dipanggil jg t_t 😤 tolong dong perbanyak kuota online nya min!!"
+        ];
+
+        const stopwords = [
+            "yang", "di", "ke", "dari", "pada", "dalam", "untuk", "dan", "atau", "dengan", "ini", 
+            "itu", "juga", "sudah", "akan", "sedang", "ada", "adalah", "sebagai", "bahwa", "oleh", 
+            "namun", "tetapi", "secara", "karena", "sehingga", "bagi", "lalu", "kemudian", "serta",
+            "sih", "nya", "buat", "deh", "dong", "yth", "dr", "jg", "bgt"
+        ];
+
+        let state = {
+            raw: "", casefolded: "", cleaned: "",
+            removedChars: [], tokens: [], stopwordInfo: [],
+            filteredTokens: [], stemInfo: [], finalTokens: [], logs: []
+        };
+
+        const tabs = ['dokumen', 'casefolding', 'cleaning', 'tokenization', 'stopword', 'stemming', 'log'];
+        
+        function switchTab(tabId) {
+            if (tabId !== 'dokumen' && state.tokens.length === 0 && state.raw === "") {
+                alert("Peringatan: Silakan lakukan pre-processing pada tab Input Dokumen terlebih dahulu.");
+                switchTab('dokumen');
+                return;
+            }
+
+            tabs.forEach(t => {
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                let btn = document.getElementById(`nav-${t}`);
+                let badge = btn.querySelector('.badge');
+                btn.className = "nav-btn inactive flex items-center gap-2 px-5 py-3 bg-slate-700 text-slate-300 border-t-4 border-transparent hover:bg-slate-600 font-medium snap-start";
+                badge.className = "badge w-6 h-6 rounded bg-slate-600 text-slate-300 flex items-center justify-center text-xs shrink-0";
+            });
+
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            let activeBtn = document.getElementById(`nav-${tabId}`);
+            let activeBadge = activeBtn.querySelector('.badge');
+            activeBtn.className = "nav-btn active flex items-center gap-2 px-5 py-3 bg-white text-slate-900 border-t-4 border-yellow-500 font-bold snap-start shadow-sm";
+            activeBadge.className = "badge w-6 h-6 rounded bg-slate-900 text-white flex items-center justify-center text-xs font-bold shrink-0";
+            
+            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        function loadSample(index) {
+            document.getElementById('raw-input').value = datasets[index];
+            document.getElementById('error-msg').classList.add('hidden');
+        }
+
+        function simpleStemmer(word) {
+            let original = word;
+            word = word.replace(/(kah|lah|tah|pun)$/, '');
+            word = word.replace(/(ku|mu|nya)$/, '');
+            word = word.replace(/^(meng|meny|men|mem|me|peng|peny|pen|pem|pe|ber|ter|di|ke|se)/, '');
+            word = word.replace(/(kan|an|i)$/, '');
+            return word.length > 2 ? word : original;
+        }
+
+        function runPipeline() {
+            const input = document.getElementById('raw-input').value;
+            if (input.trim() === "") {
+                document.getElementById('error-msg').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('error-msg').classList.add('hidden');
+
+            state = { logs: [] };
+            state.raw = input;
+
+            state.casefolded = state.raw.toLowerCase();
+            state.logs.push({ step: "Case Folding", before: state.raw, after: state.casefolded });
+
+            const regexClean = /[^a-z\s]/g;
+            state.cleaned = state.casefolded.replace(regexClean, ' ').replace(/\s+/g, ' ').trim();
+            let matches = state.casefolded.match(regexClean) || [];
+            state.removedChars = [...new Set(matches)].filter(c => c.trim() !== "");
+            state.logs.push({ step: "Cleaning", before: state.casefolded, after: state.cleaned });
+
+            state.tokens = state.cleaned.split(' ').filter(w => w.length > 0);
+            let tokenStr = `[${state.tokens.join(', ')}]`;
+            state.logs.push({ step: "Tokenization", before: state.cleaned, after: tokenStr });
+
+            state.stopwordInfo = [];
+            state.filteredTokens = [];
+            state.tokens.forEach(t => {
+                let isStopword = stopwords.includes(t);
+                state.stopwordInfo.push({ word: t, kept: !isStopword });
+                if (!isStopword) state.filteredTokens.push(t);
+            });
+            let filteredStr = `[${state.filteredTokens.join(', ')}]`;
+            state.logs.push({ step: "Stopword Removal", before: tokenStr, after: filteredStr });
+
+            state.stemInfo = [];
+            state.finalTokens = [];
+            state.filteredTokens.forEach(t => {
+                let root = simpleStemmer(t);
+                state.stemInfo.push({ original: t, stemmed: root, changed: t !== root });
+                state.finalTokens.push(root);
+            });
+            let finalStr = `[${state.finalTokens.join(', ')}]`;
+            state.logs.push({ step: "Stemming", before: filteredStr, after: finalStr });
+
+            renderResults();
+            switchTab('casefolding');
+        }
+
+        function renderResults() {
+            document.getElementById('res-cf-before').textContent = state.raw;
+            document.getElementById('res-cf-after').textContent = state.casefolded;
+            document.getElementById('res-clean-after').textContent = state.cleaned;
+            
+            let charBox = document.getElementById('res-clean-removed');
+            charBox.innerHTML = '';
+            if (state.removedChars.length === 0) {
+                charBox.innerHTML = '<span class="text-slate-500 italic text-sm">Tidak ada karakter anomali.</span>';
+            } else {
+                state.removedChars.forEach(c => {
+                    let s = document.createElement('span');
+                    s.className = "bg-white text-red-800 px-3 py-1 border border-red-300 font-bold shadow-sm";
+                    s.textContent = c === " " ? "(spasi)" : c;
+                    charBox.appendChild(s);
+                });
+            }
+
+            document.getElementById('token-count').textContent = state.tokens.length;
+            let tokenContainer = document.getElementById('res-tokens');
+            tokenContainer.innerHTML = '';
+            state.tokens.forEach(t => {
+                let badge = document.createElement('span');
+                badge.className = "px-3 py-1.5 bg-white text-slate-800 border border-slate-300 font-mono text-sm shadow-sm";
+                badge.textContent = t;
+                tokenContainer.appendChild(badge);
+            });
+
+            let stopVizContainer = document.getElementById('res-stopword-viz');
+            stopVizContainer.innerHTML = '';
+            state.stopwordInfo.forEach(info => {
+                let badge = document.createElement('span');
+                if (info.kept) {
+                    badge.className = "px-3 py-1 bg-slate-100 text-slate-800 border border-slate-300 font-mono text-sm";
+                    badge.textContent = info.word;
+                } else {
+                    badge.className = "px-3 py-1 bg-red-50 text-red-700 border border-red-200 font-mono text-sm line-through opacity-75";
+                    badge.textContent = info.word;
+                }
+                stopVizContainer.appendChild(badge);
+            });
+
+            let stemChangesBox = document.getElementById('res-stem-changes');
+            let stemFinalBox = document.getElementById('res-stem-final');
+            stemChangesBox.innerHTML = '';
+            stemFinalBox.innerHTML = '';
+            
+            state.stemInfo.forEach(info => {
+                let row = document.createElement('div');
+                row.className = "flex justify-between items-center py-2 border-b border-slate-200 last:border-0";
+                
+                let orig = document.createElement('span');
+                orig.className = info.changed ? "text-red-700 line-through font-mono" : "text-slate-600 font-mono";
+                orig.textContent = info.original;
+                
+                let arrow = document.createElement('span');
+                arrow.className = "text-slate-400 text-xs px-2";
+                arrow.innerHTML = '➔';
+                
+                let result = document.createElement('span');
+                result.className = "font-bold text-blue-900 font-mono";
+                result.textContent = info.stemmed;
+                
+                row.appendChild(orig);
+                row.appendChild(arrow);
+                row.appendChild(result);
+                stemChangesBox.appendChild(row);
+
+                let badge = document.createElement('span');
+                badge.className = "px-3 py-1.5 bg-blue-900 text-white font-mono text-sm h-fit shadow-sm";
+                badge.textContent = info.stemmed;
+                stemFinalBox.appendChild(badge);
+            });
+
+            let logTableBody = document.getElementById('log-table-body');
+            logTableBody.innerHTML = '';
+            state.logs.forEach(log => {
+                let tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-4 align-top border-b border-slate-200 border-r border-slate-200 font-bold text-slate-800 text-sm whitespace-nowrap">${log.step}</td>
+                    <td class="p-4 align-top border-b border-slate-200 border-r border-slate-200 text-slate-700 font-mono text-xs break-words leading-relaxed">${log.before}</td>
+                    <td class="p-4 align-top border-b border-slate-200 text-slate-700 font-mono text-xs break-words leading-relaxed">${log.after}</td>
+                `;
+                logTableBody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
